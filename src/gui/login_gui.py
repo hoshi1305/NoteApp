@@ -28,7 +28,7 @@ def show_login_screen(root, main_app_callback):
         
         if check_login(email, password):
             messagebox.showinfo("Thành công", "Đăng nhập thành công!")
-            main_app_callback(email)
+            main_app_callback(root, email)
         else:
             messagebox.showerror("Thất bại", "Sai email hoặc mật khẩu.")
 
