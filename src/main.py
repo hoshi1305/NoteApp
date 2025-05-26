@@ -1,151 +1,124 @@
-# 1. 📦 Import thư viện
+# 1. Import thư viện
 import tkinter as tk
-import json
-import os
-from datetime import datetime
-from tkinter import messagebox
-from config import center_window, NOTES_FILE
-from gui.login_gui import LoginApp
 import sys
+import os
+from config import center_window
+from gui.login_gui import LoginApp
+from gui.note_gui import show_create_note_ui, clear_frame
+from logic.notes import load_notes
+
+# Thêm đường dẫn gốc vào sys.path để import đúng
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-notes_data = []
+# 2. Hằng số cấu hình
+MAIN_BG = "#1e1e1e"
+SIDEBAR_BG = "#2b2b2b"
+BUTTON_BG = "#43a047"
+BUTTON_FG = "white"
 
-def load_notes():
-    global notes_data
-    if os.path.exists(NOTES_FILE):
-        with open(NOTES_FILE, "r", encoding="utf-8") as f:
-            notes_data = json.load(f)
-    else:
-        notes_data = []
-
-def save_notes():
-    with open(NOTES_FILE, "w", encoding="utf-8") as f:
-        json.dump(notes_data, f, ensure_ascii=False, indent=2)
-
-def show_create_note_ui_only(content_frame):
-    for widget in content_frame.winfo_children():
-        widget.destroy()
-
-    content_frame.configure(bg="#252525")
-
-    tk.Label(content_frame, text="Tạo ghi chú mới", bg="#252525", fg="white", font=("Arial", 16, "bold")).pack(pady=10)
-
-    tk.Label(content_frame, text="Tiêu đề:", bg="#252525", fg="white").pack(anchor="w", padx=10)
-    title_entry = tk.Entry(content_frame, font=("Arial", 12))
-    title_entry.pack(fill="x", padx=10, pady=5)
-
-    tk.Label(content_frame, text="Nội dung:", bg="#252525", fg="white").pack(anchor="w", padx=10)
-    content_text = tk.Text(content_frame, height=15, font=("Arial", 12))
-    content_text.pack(fill="both", padx=10, pady=5, expand=True)
-
-    def save_note():
-        title = title_entry.get().strip() or "Không tiêu đề"
-        content = content_text.get("1.0", "end").strip()
-        if not content:
-            messagebox.showwarning("Thiếu nội dung", "Vui lòng nhập nội dung ghi chú.")
-            return
-
-        now_str = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
-        notes_data.insert(0, {
-            "title": title,
-            "content": content,
-            "time": now_str
-        })
-        save_notes()
-
-        title_entry.delete(0, "end")
-        content_text.delete("1.0", "end")
-        messagebox.showinfo("Thành công", "Ghi chú đã được lưu.")
-
-    tk.Button(content_frame, text="Lưu ghi chú", bg="#43a047", fg="white", font=("Arial", 12), command=save_note).pack(pady=10)
-
-def main_app(root, user_email):
+# 3. Hàm xử lý giao diện
+def main_app(root, username):
+    """Hiển thị giao diện chính của ứng dụng."""
     root.geometry("900x600")
     center_window(root, 900, 600)
-    root.configure(bg="#1e1e1e")
-    for widget in root.winfo_children():
-        widget.destroy()
+    root.configure(bg=MAIN_BG)
+    clear_frame(root)
 
     # Sidebar
-    sidebar = tk.Frame(root, bg="#2b2b2b", width=300)
+    sidebar = tk.Frame(root, bg=SIDEBAR_BG, width=300)
     sidebar.pack(side="left", fill="y")
 
-    tk.Label(sidebar, text="👤", bg="#2b2b2b", fg="white",
-             font=("Arial", 22, "bold")).pack(pady=15)
-    tk.Label(sidebar, text=user_email, bg="#2b2b2b", fg="white",
-             font=("Arial", 10), wraplength=180).pack(pady=5)
+    # User info
+    tk.Label(sidebar, text="Người dùng", bg=SIDEBAR_BG, fg="white",
+            font=("Arial", 14, "bold")).pack(pady=15)
+    tk.Label(sidebar, text=username, bg=SIDEBAR_BG, fg="white",
+            font=("Arial", 10), wraplength=180).pack(pady=5)
 
     # Content area
-    content_frame = tk.Frame(root, bg="#1e1e1e")
+    content_frame = tk.Frame(root, bg=MAIN_BG)
     content_frame.pack(side="left", fill="both", expand=True, padx=20, pady=20)
 
     # Các hàm hiển thị nội dung khi bấm menu
     def show_home():
-        for widget in content_frame.winfo_children():
-            widget.destroy()
-        tk.Label(content_frame, text="Trang chủ", bg="#1e1e1e", fg="white", font=("Arial", 20)).pack(pady=20)
+        """Hiển thị trang chủ."""
+        clear_frame(content_frame)
+        tk.Label(content_frame, text="Trang chủ", bg=MAIN_BG, 
+                fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_tasks():
-        for widget in content_frame.winfo_children():
-            widget.destroy()
-        tk.Label(content_frame, text="Tasks - Chức năng đang phát triển", bg="#1e1e1e", fg="white", font=("Arial", 20)).pack(pady=20)
+        """Hiển thị trang quản lý công việc."""
+        clear_frame(content_frame)
+        tk.Label(content_frame, text="Tasks - Chức năng đang phát triển", 
+                bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_files():
-        for widget in content_frame.winfo_children():
-            widget.destroy()
-        tk.Label(content_frame, text="Files - Chức năng đang phát triển", bg="#1e1e1e", fg="white", font=("Arial", 20)).pack(pady=20)
+        """Hiển thị trang quản lý tệp."""
+        clear_frame(content_frame)
+        tk.Label(content_frame, text="Files - Chức năng đang phát triển", 
+                bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_events():
-        for widget in content_frame.winfo_children():
-            widget.destroy()
-        tk.Label(content_frame, text="Events - Chức năng đang phát triển", bg="#1e1e1e", fg="white", font=("Arial", 20)).pack(pady=20)
+        """Hiển thị trang sự kiện."""
+        clear_frame(content_frame)
+        tk.Label(content_frame, text="Events - Chức năng đang phát triển", 
+                bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_tags():
-        for widget in content_frame.winfo_children():
-            widget.destroy()
-        tk.Label(content_frame, text="Tags - Chức năng đang phát triển", bg="#1e1e1e", fg="white", font=("Arial", 20)).pack(pady=20)
+        """Hiển thị trang quản lý thẻ."""
+        clear_frame(content_frame)
+        tk.Label(content_frame, text="Tags - Chức năng đang phát triển", 
+                bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_create_note():
-        show_create_note_ui_only(content_frame)
+        """Hiển thị trang tạo ghi chú mới."""
+        show_create_note_ui(content_frame)
         
     def logout():
+        """Đăng xuất và quay lại màn hình đăng nhập."""
         from gui.login_gui import show_login_screen
         show_login_screen(root, main_app)
 
+    # Tạo menu điều hướng
     menu_items = [
         ("Home", show_home),
         ("Tasks", show_tasks),
         ("Files", show_files),
         ("Events", show_events),
-        ("Tags", show_tags)
+        ("Tags", show_tags),
+        ("Tạo ghi chú", show_create_note)
     ]
 
     for text, command in menu_items:
-        tk.Button(sidebar, text=text, command=command, bg="#2b2b2b", fg="white",
-                  font=("Arial", 11), relief="flat", anchor="w", padx=20,
-                  activebackground="#3a3a3a").pack(fill="x", pady=2)
+        tk.Button(sidebar, text=text, command=command, bg=SIDEBAR_BG, fg="white",
+                font=("Arial", 11), relief="flat", anchor="w", padx=20,
+                activebackground="#3a3a3a").pack(fill="x", pady=2)
 
     tk.Button(sidebar, text="Đăng xuất", command=logout,
-              bg="#43a047", fg="white", font=("Arial", 11, "bold"),
-              relief="flat", pady=8).pack(side="bottom", pady=20, fill="x", padx=10)
+            bg=BUTTON_BG, fg=BUTTON_FG, font=("Arial", 11, "bold"),
+            relief="flat", pady=8).pack(side="bottom", pady=20, fill="x", padx=10)
 
     # Mặc định khi đăng nhập hiển thị trang Home
     show_home()
 
+# 4. Class
 class NoteApp:
+    """Lớp khởi tạo ứng dụng ghi chú."""
     def __init__(self):
         self.root = tk.Tk()
         
     def start(self):
+        """Bắt đầu ứng dụng với màn hình đăng nhập."""
         load_notes()
         login_app = LoginApp(self.root, main_app)
         login_app.start()
         self.root.mainloop()
 
+# 5. Hàm main
 def main():
+    """Hàm chính để khởi động ứng dụng."""
     app = NoteApp()
     app.start()
 
+# 6. Điểm bắt đầu chương trình
 if __name__ == "__main__":
     main()
