@@ -1,20 +1,20 @@
-# 1. Import thư viện
+# Import thư viện
 import tkinter as tk
 from tkinter import messagebox
 from logic.notes import add_note
 
-# 2. Hằng số cấu hình
+# Hằng số cấu hình
 CONTENT_BG = "#252525"
 BUTTON_BG = "#43a047"
 BUTTON_FG = "white"
 
-# 3. Helper function
+# Hàm tiện ích
 def clear_frame(frame):
     """Xóa tất cả widget trong một frame."""
     for widget in frame.winfo_children():
         widget.destroy()
 
-# 4. Hàm xử lý giao diện
+# Hàm xử lý giao diện
 def show_create_note_ui(content_frame):
     """Hiển thị giao diện tạo ghi chú mới."""
     clear_frame(content_frame)

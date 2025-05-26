@@ -2,6 +2,7 @@ import json
 import os
 from config import USER_FILE
 
+# Hàm xử lý logic
 def load_users():
     """Đọc dữ liệu người dùng từ file JSON."""
     if not os.path.exists(USER_FILE):

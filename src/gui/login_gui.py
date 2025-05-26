@@ -3,18 +3,18 @@ from tkinter import messagebox
 from config import center_window
 from logic.auth import check_login, register_user
 
-# 2. Hằng số cấu hình
+# Hằng số cấu hình
 LOGIN_BG = "#e8f5e9"
 LOGIN_FG = "#1b5e20"
 BUTTON_BG = "#43a047"
 BUTTON_FG = "white"
 
-# 4. Hàm xử lý logic
+# Hàm xử lý logic
 def validate_login_input(username, password):
     """Kiểm tra dữ liệu đầu vào đăng nhập."""
     return username.strip() and password.strip()
 
-# 5. Hàm xử lý giao diện
+# Hàm xử lý giao diện
 def show_login_screen(root, main_app_callback):
     """Hiển thị màn hình đăng nhập."""
     root.configure(bg=LOGIN_BG)
@@ -103,7 +103,7 @@ def show_register_screen(root, main_app_callback):
     tk.Button(root, text="Quay lại đăng nhập", command=lambda: show_login_screen(root, main_app_callback), 
             bg="white", fg="#2e7d32", font=("Arial", 11), width=20, relief="solid").pack()
 
-# 6. Class
+# Class
 class LoginApp:
     """Lớp khởi tạo ứng dụng đăng nhập."""
     def __init__(self, root, main_app_callback):

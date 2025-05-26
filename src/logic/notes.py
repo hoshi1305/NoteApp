@@ -1,13 +1,13 @@
-# 1. Import thư viện
+# Import thư viện
 import json
 import os
 from datetime import datetime
 from config import NOTES_FILE
 
-# 2. Biến toàn cục
+# Biến toàn cục
 notes_data = []
 
-# 3. Hàm xử lý logic
+# Hàm xử lý logic
 def load_notes():
     """Đọc dữ liệu ghi chú từ file JSON."""
     global notes_data
