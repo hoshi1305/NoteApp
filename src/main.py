@@ -1,4 +1,3 @@
-# 1. Import thư viện
 import tkinter as tk
 import sys
 import os
@@ -10,13 +9,13 @@ from logic.notes import load_notes
 # Thêm đường dẫn gốc vào sys.path để import đúng
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# 2. Hằng số cấu hình
+# Hằng số cấu hình
 MAIN_BG = "#1e1e1e"
 SIDEBAR_BG = "#2b2b2b"
 BUTTON_BG = "#43a047"
 BUTTON_FG = "white"
 
-# 3. Hàm xử lý giao diện
+# Hàm xử lý giao diện
 def main_app(root, username):
     """Hiển thị giao diện chính của ứng dụng."""
     root.geometry("900x600")
@@ -100,7 +99,7 @@ def main_app(root, username):
     # Mặc định khi đăng nhập hiển thị trang Home
     show_home()
 
-# 4. Class
+# Class
 class NoteApp:
     """Lớp khởi tạo ứng dụng ghi chú."""
     def __init__(self):
@@ -113,12 +112,12 @@ class NoteApp:
         login_app.start()
         self.root.mainloop()
 
-# 5. Hàm main
+# Hàm main
 def main():
     """Hàm chính để khởi động ứng dụng."""
     app = NoteApp()
     app.start()
 
-# 6. Điểm bắt đầu chương trình
+# Điểm bắt đầu chương trình
 if __name__ == "__main__":
     main()

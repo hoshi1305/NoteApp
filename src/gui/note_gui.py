@@ -1,4 +1,3 @@
-# Import thư viện
 import tkinter as tk
 from tkinter import messagebox
 from logic.notes import add_note
