@@ -37,6 +37,11 @@ def show_login_screen(root, main_app_callback):
     password_entry = tk.Entry(frame, show="*", font=("Arial", 12), width=30)
     password_entry.grid(row=1, column=1, pady=5)
 
+    tk.Label(frame, text="Nhập lại mật khẩu:", bg=LOGIN_BG, fg=LOGIN_FG,
+             font=("Arial", 12)).grid(row=2, column=0, sticky="w", pady=5)
+    confirm_entry = tk.Entry(frame, show="*", font=("Arial", 12), width=30)
+    confirm_entry.grid(row=2, column=1, pady=5)
+    
     def login():
         """Xử lý sự kiện khi nhấn nút đăng nhập."""
         username = username_entry.get().strip()
