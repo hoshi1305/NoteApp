@@ -31,9 +31,10 @@ def hash_password(password):
 def load_users():
     """Đọc dữ liệu người dùng từ file JSON."""
     if not os.path.exists(USER_FILE):
-        return {}
+        return []
     with open(USER_FILE, "r") as f:
         return json.load(f)
+
 
 def save_users(users):
     """Lưu dữ liệu người dùng vào file JSON."""
@@ -42,32 +43,51 @@ def save_users(users):
 
 
 def check_login(username, password):
-    """Kiểm tra thông tin đăng nhập có hợp lệ không."""
-    users = load_users()
-    if username in users:
-        # Băm mật khẩu người dùng nhập vào
-        hashed_input_password = hash_password(password)
-        # So sánh mật khẩu đã băm với mật khẩu lưu trong file
-        if users[username] == hashed_input_password:
-            return True  # Đăng nhập thành công
-        else:
-            return False  # Sai mật khẩu
-    else:
-        return False  # Tài khoản không tồn tại
+    """Kiểm tra xem username và password có hợp lệ không."""
+    users = load_users()  # Tải danh sách người dùng từ file
+    for user in users:  # Duyệt qua từng người dùng
+        if user["username"] == username:  # Tìm thấy username
+            hashed_input_password = hash_password(password)  # Băm password nhập vào
+            if user["password"] == hashed_input_password:  # So sánh password đã băm
+                return True, "Đăng nhập thành công"  # Đăng nhập thành công
+            else:
+                return False, "Sai mật khẩu"  # Sai mật khẩu
+    return False, "Tên tài khoản không tồn tại"  # Không tìm thấy username
 
 
 def register_user(username, password, confirm_password):
     """Đăng ký người dùng mới nếu tên tài khoản chưa tồn tại."""
-    # Kiểm tra mật khẩu xác nhận có khớp không
+    # Kiểm tra tính hợp lệ tên tài khoản
+    if not validate_username(username):
+        return False, "Tên tài khoản không hợp lệ"
+
+    # Kiểm tra tính hợp lệ mật khẩu
+    if not validate_password(password):
+        return False, "Mật khẩu yêu cầu ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
+    
+    # Kiểm tra tính hợp lệ mật khẩu xác nhận
+    if not validate_password(confirm_password):
+        return False, "Mật khẩu xác nhận không trung khớp với mật khẩu"
+
+    # Kiểm tra khớp mật khẩu và xác nhận
     if password != confirm_password:
         return False, "Mật khẩu xác nhận không khớp"
 
     users = load_users()
-    if username in users:
-        return False, "Tên tài khoản đã tồn tại"
+    for user in users:
+        if user["username"] == username:
+            return False, "Tên tài khoản đã tồn tại"
 
-    # Băm mật khẩu trước khi lưu
     hashed_password = hash_password(password)
-    users[username] = hashed_password
+    new_user = {"username": username, "password": hashed_password}
+    users.append(new_user)
     save_users(users)
     return True, "Đăng ký thành công"
+
+def get_user_info(username):
+    """Lấy thông tin người dùng."""
+    users = load_users()
+    for user in users:
+        if user["username"] == username:
+            return user
+    return None

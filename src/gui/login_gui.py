@@ -42,15 +42,18 @@ def show_login_screen(root, main_app_callback):
         username = username_entry.get().strip()
         password = password_entry.get().strip()
         
+        # Kiểm tra dữ liệu đầu vào
         if not validate_login_input(username, password):
             messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin đăng nhập.")
             return
             
-        if check_login(username, password):
-            messagebox.showinfo("Thành công", "Đăng nhập thành công!")
+        # Kiểm tra đăng nhập
+        success, message = check_login(username, password)
+        if success:
+            messagebox.showinfo("Thành công", message)
             main_app_callback(root, username)
         else:
-            messagebox.showerror("Thất bại", "Sai tên tài khoản hoặc mật khẩu.")
+            messagebox.showerror("Thất bại", message)
 
     def goto_register():
         """Chuyển sang màn hình đăng ký."""
@@ -95,14 +98,14 @@ def show_register_screen(root, main_app_callback):
         confirm_password = confirm_entry.get().strip()
         
         if not username or not password or not confirm_password:
-            messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ.")
+            messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ thông tin.")
             return
             
-        if register_user(username, password):
-            messagebox.showinfo("Thành công", "Đăng ký thành công!")
-            show_login_screen(root, main_app_callback)
+        success, message = register_user(username, password, confirm_password)
+        if success:
+            messagebox.showinfo("Thành công", message)
         else:
-            messagebox.showerror("Lỗi", "Tên tài khoản đã tồn tại.")
+            messagebox.showerror("Lỗi", message)
 
     tk.Button(root, text="Đăng ký", command=register, 
             bg=BUTTON_BG, fg=BUTTON_FG, font=("Arial", 12), width=20).pack(pady=8)
