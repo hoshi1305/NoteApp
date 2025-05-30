@@ -5,6 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 USER_FILE = os.path.join(DATA_DIR, 'users.json')
 NOTES_FILE = os.path.join(DATA_DIR, 'notes.json')
+TRASH_FILE = os.path.join(DATA_DIR, 'trash.json')
 
 # Hàm tiện ích
 def center_window(window, width, height):
