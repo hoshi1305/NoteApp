@@ -4,7 +4,7 @@ import os
 from config import center_window
 from gui.login_gui import LoginApp
 from gui.notes_gui import show_create_note_ui, clear_frame
-from logic.note import load_notes
+from logic.notes import load_notes
 
 # Thêm đường dẫn gốc vào sys.path để import đúng
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
