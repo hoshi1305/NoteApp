@@ -87,8 +87,9 @@ def show_register_screen(root, main_app_callback):
         """Xử lý sự kiện khi nhấn nút đăng ký."""
         username = username_entry.get().strip()
         password = password_entry.get().strip()
-
-        if not username or not password:
+        confirm_password = confirm_entry.get().strip()
+        
+        if not username or not password or not confirm_password:
             messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ.")
             return
             
