@@ -50,23 +50,18 @@ def main_app(root, username):
         tk.Label(content_frame, text="Tasks - Chức năng đang phát triển", 
                 bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
-    def show_files():
-        """Hiển thị trang quản lý tệp."""
+    def show_trash():
+        """Hiển thị thùng rác."""
         clear_frame(content_frame)
-        tk.Label(content_frame, text="Files - Chức năng đang phát triển", 
+        tk.Label(content_frame, text="Thùng rác - Chức năng đang phát triển", 
                 bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
-    def show_events():
-        """Hiển thị trang sự kiện."""
+    def show_share():
+        """Hiển thị chia sẽ ghi chú."""
         clear_frame(content_frame)
-        tk.Label(content_frame, text="Events - Chức năng đang phát triển", 
+        tk.Label(content_frame, text="Chia sẽ ghi chú - Chức năng đang phát triển", 
                 bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
-    def show_tags():
-        """Hiển thị trang quản lý thẻ."""
-        clear_frame(content_frame)
-        tk.Label(content_frame, text="Tags - Chức năng đang phát triển", 
-                bg=MAIN_BG, fg="white", font=("Arial", 20)).pack(pady=20)
 
     def show_create_note():
         """Hiển thị trang tạo ghi chú mới."""
@@ -79,12 +74,9 @@ def main_app(root, username):
 
     # Tạo menu điều hướng
     menu_items = [
-        ("Home", show_home),
-        ("Tasks", show_tasks),
-        ("Files", show_files),
-        ("Events", show_events),
-        ("Tags", show_tags),
-        ("Tạo ghi chú", show_create_note)
+        ("Trang chủ", show_home),
+        ("Chia sẽ ghi chú", show_share),
+        ("Thùng rác",show_trash)
     ]
 
     for text, command in menu_items:
