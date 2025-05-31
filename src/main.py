@@ -113,7 +113,7 @@ def main_app(root, username):
                     def share():
                         target_user = simpledialog.askstring("Chia sẻ ghi chú", "Nhập tên người dùng để chia sẻ:")
                         if target_user:
-                            success, msg = share_note(username, index, target_user)
+                            success, msg = share_note_multiple(username, index, target_user)
                             if success:
                                 messagebox.showinfo("Thành công", msg)
                             else:
