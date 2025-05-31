@@ -1,10 +1,9 @@
 import json
 import os
 from config import TRASH_FILE
-
+from datetime import datetime
 # Hằng số cấu hình
 trash_data = {}
-
 
 def load_trash():
     """Đọc dữ liệu thùng rác từ file JSON."""
@@ -23,7 +22,6 @@ def load_trash():
         print(f"Lỗi bất ngờ khi đọc {TRASH_FILE}: {e}")
         trash_data = {}
 
-
 def save_trash():
     """Lưu dữ liệu thùng rác vào file JSON."""
     try:
@@ -33,7 +31,6 @@ def save_trash():
         print(f"Lỗi ghi file {TRASH_FILE}: {e}")
     except TypeError as e:
         print(f"Lỗi serialize dữ liệu: {e}")
-
 
 def move_to_trash(username, index):
     """Di chuyển ghi chú tại vị trí index của user vào thùng rác."""
@@ -45,6 +42,7 @@ def move_to_trash(username, index):
         return False
 
     note = notes_data[username].pop(index)
+    note["deleted_time"] = datetime.now().strftime("%H:%M:%S %d/%m/%Y")  # ✅ thêm dòng này
 
     if username not in trash_data:
         trash_data[username] = []
@@ -53,7 +51,6 @@ def move_to_trash(username, index):
     save_notes()
     save_trash()
     return True
-
 
 def restore_from_trash(username, index):
     """Khôi phục ghi chú tại vị trí index từ thùng rác về danh sách ghi chú."""
@@ -74,11 +71,9 @@ def restore_from_trash(username, index):
     save_trash()
     return True
 
-
 def get_trash_notes(username):
     """Trả về danh sách ghi chú trong thùng rác của user."""
     return trash_data.get(username, [])
-
 
 def permanently_delete_from_trash(username, index):
     """Xóa vĩnh viễn ghi chú tại vị trí index trong thùng rác."""
@@ -90,7 +85,6 @@ def permanently_delete_from_trash(username, index):
     trash_data[username].pop(index)
     save_trash()
     return True
-
 
 def permanently_delete_all_from_trash(username):
     """Xóa tất cả ghi chú trong thùng rác của user."""
