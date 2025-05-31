@@ -1,11 +1,12 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
-from logic.notes import load_notes, save_notes, notes_data
+import tkinter.messagebox as messagebox
+from logic.notes import load_notes
 from logic import notes, trash
 from config import center_window
 from gui.login_gui import LoginApp
 from gui.notes_gui import show_create_note_ui, clear_frame
 from gui.trash_gui import show_trash_ui
+from logic.api_ai import summarize_text_ai, suggest_title_ai, format_text_ai, check_ai_permission
 
 MAIN_BG = "#1e1e1e"
 SIDEBAR_BG = "#2b2b2b"
@@ -113,7 +114,7 @@ def main_app(root, username):
         def edit_selected_note():
             idx = selected_index.get()
             if idx == -1 or idx >= len(displayed_notes):
-                messagebox.showwarning("Chưa chọn", "Vui lòng chọn ghi chú.")
+                tk.messagebox.showwarning("Chưa chọn", "Vui lòng chọn ghi chú.")
                 return
             real_index = displayed_notes[idx][0]
             note = notes.notes_data[username][real_index]
@@ -122,37 +123,117 @@ def main_app(root, username):
             tk.Label(content_frame, text="Sửa ghi chú", bg=MAIN_BG,
                      fg="white", font=("Arial", 16, "bold")).pack(pady=10)
 
-            tk.Label(content_frame, text="Tiêu đề:", bg=MAIN_BG, fg="white").pack(anchor="w", padx=10)
-            title_entry = tk.Entry(content_frame, font=("Arial", 12))
+            editor_frame = tk.Frame(content_frame, bg=MAIN_BG)
+            editor_frame.pack(fill="both", expand=True)
+
+            tk.Label(editor_frame, text="Tiêu đề:", bg=MAIN_BG, fg="white").pack(anchor="w")
+            title_entry = tk.Entry(editor_frame, font=("Arial", 12))
             title_entry.insert(0, note["title"])
-            title_entry.pack(fill="x", padx=10, pady=5)
+            title_entry.pack(fill="x", pady=5)
 
-            tk.Label(content_frame, text="Nội dung:", bg=MAIN_BG, fg="white").pack(anchor="w", padx=10)
-            content_text = tk.Text(content_frame, height=15, font=("Arial", 12))
+            tk.Label(editor_frame, text="Nội dung:", bg=MAIN_BG, fg="white").pack(anchor="w")
+            content_text = tk.Text(editor_frame, height=15, font=("Arial", 12))
             content_text.insert("1.0", note["content"])
-            content_text.pack(fill="both", padx=10, pady=5, expand=True)
+            content_text.pack(fill="both", expand=True)
 
-            # --- Nút tóm tắt, gợi ý, cải thiện ---
-            def summarize():
+            def run_ai_popup(task):
                 content = content_text.get("1.0", "end").strip()
-                messagebox.showinfo("Tóm tắt", content[:100] + "...")
+                if not content:
+                    messagebox.showinfo("Thông báo", "Nội dung rỗng.")
+                    return
 
-            def suggest_title():
-                content = content_text.get("1.0", "end").strip()
-                title_entry.delete(0, tk.END)
-                title_entry.insert(0, "Gợi ý: " + (content[:20] + "..." if len(content) > 20 else content))
+                if task == "summarize":
+                    if not check_ai_permission(username, "summarize"):
+                        messagebox.showwarning("Không có quyền", "Chỉ admin mới có thể sử dụng tính năng tóm tắt.")
+                        return
+                    result = summarize_text_ai(content)
+                elif task == "title":
+                    suggestions = suggest_title_ai(content)
+                    result = "\n".join(suggestions) if suggestions else "Không có gợi ý."
+                elif task == "format":
+                    result = format_text_ai(content)
+                else:
+                    result = "Không rõ tác vụ."
 
-            def improve():
-                content = content_text.get("1.0", "end").strip()
-                messagebox.showinfo("Cải thiện", content.upper())
+                show_preview_popup(result, task)
+
+              # Thêm dòng này ở đầu file nếu chưa có
+
+            def show_preview_popup(result, task_type):
+                popup = tk.Toplevel(root)
+                popup.title("Kết quả AI")
+                popup.configure(bg=MAIN_BG)
+                popup.geometry("500x450")
+                popup.resizable(False, False)
+
+                # Vị trí popup lệch trái
+                root.update_idletasks()
+                x = root.winfo_x()
+                y = root.winfo_y()
+                popup.geometry(f"+{x + 100}+{y + 100}")
+
+                # Tiêu đề popup
+                tk.Label(popup, text="Kết quả AI", font=("Arial", 14, "bold"),
+                         bg=MAIN_BG, fg="white").pack(pady=10)
+
+                # Vùng hiển thị văn bản
+                text_frame = tk.Frame(popup, bg=MAIN_BG)
+                text_frame.pack(expand=True, fill="both", padx=15, pady=(0, 10))
+
+                text_preview = tk.Text(text_frame, wrap="word", font=("Arial", 12),
+                                       bg="#2b2b2b", fg="white", insertbackground="white", height=15)
+                text_preview.insert("1.0", result)
+                text_preview.pack(expand=True, fill="both")
+
+                # Nút điều khiển
+                button_frame = tk.Frame(popup, bg=MAIN_BG)
+                button_frame.pack(pady=(0, 20))
+
+                def apply_result():
+                    value = text_preview.get("1.0", "end").strip()
+                    if task_type == "title":
+                        title_entry.delete(0, tk.END)
+                        title_entry.insert(0, value.split("\n")[0])
+                    else:
+                        content_text.delete("1.0", tk.END)
+                        content_text.insert("1.0", value)
+                    popup.destroy()
+
+                def copy_result():
+                    popup.clipboard_clear()
+                    popup.clipboard_append(text_preview.get("1.0", "end").strip())
+                    popup.update()  # Đảm bảo clipboard hoạt động
+                    messagebox.showinfo("Đã sao chép", "Văn bản đã được sao chép vào clipboard.")
+                    popup.destroy()
+
+                def cancel_popup():
+                    popup.destroy()
+
+                # Giao diện nút tùy theo loại tác vụ
+                if task_type == "summarize":
+                    copy_button = tk.Button(button_frame, text="Sao chép văn bản",
+                                            command=copy_result, bg="#2196f3", fg="white",
+                                            font=("Arial", 11, "bold"), width=18)
+                    copy_button.pack(side="left", padx=10)
+                else:
+                    apply_button = tk.Button(button_frame, text="Áp dụng",
+                                             command=apply_result, bg="#4caf50", fg="white",
+                                             font=("Arial", 11, "bold"), width=12)
+                    apply_button.pack(side="left", padx=10)
+
+                cancel_button = tk.Button(button_frame, text="Hủy bỏ", command=cancel_popup,
+                                          bg="#f44336", fg="white", font=("Arial", 11, "bold"), width=12)
+                cancel_button.pack(side="left", padx=10)
 
             action_frame = tk.Frame(content_frame, bg=MAIN_BG)
             action_frame.pack(pady=(5, 10))
-            tk.Button(action_frame, text="Tóm tắt", command=summarize,
+            tk.Button(action_frame, text="Tóm tắt", command=lambda: run_ai_popup("summarize"),
                       bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
-            tk.Button(action_frame, text="Gợi ý tiêu đề", command=suggest_title,
+
+            tk.Button(action_frame, text="Gợi ý tiêu đề", command=lambda: run_ai_popup("title"),
                       bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
-            tk.Button(action_frame, text="Cải thiện văn bản", command=improve,
+
+            tk.Button(action_frame, text="Cải thiện văn bản", command=lambda: run_ai_popup("format"),
                       bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
 
             def save_update():
