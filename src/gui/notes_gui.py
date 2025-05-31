@@ -14,12 +14,11 @@ def clear_frame(frame):
         widget.destroy()
 
 # Hàm xử lý giao diện
-def show_create_note_ui(content_frame):
-    """Hiển thị giao diện tạo ghi chú mới."""
+def show_create_note_ui(content_frame, username):
     clear_frame(content_frame)
     content_frame.configure(bg=CONTENT_BG)
 
-    tk.Label(content_frame, text="Tạo ghi chú mới", bg=CONTENT_BG, 
+    tk.Label(content_frame, text="Tạo ghi chú mới", bg=CONTENT_BG,
             fg="white", font=("Arial", 16, "bold")).pack(pady=10)
 
     tk.Label(content_frame, text="Tiêu đề:", bg=CONTENT_BG, fg="white").pack(anchor="w", padx=10)
@@ -35,7 +34,7 @@ def show_create_note_ui(content_frame):
         title = title_entry.get()
         content = content_text.get("1.0", "end")
         
-        if add_note(title, content):
+        if add_note(username,title, content):
             title_entry.delete(0, "end")
             content_text.delete("1.0", "end")
             messagebox.showinfo("Thành công", "Ghi chú đã được lưu.")
