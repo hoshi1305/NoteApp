@@ -5,6 +5,7 @@ from logic import notes, trash
 from config import center_window
 from gui.login_gui import LoginApp
 from gui.notes_gui import show_create_note_ui, clear_frame
+from gui.trash_gui import show_trash_ui
 
 MAIN_BG = "#1e1e1e"
 SIDEBAR_BG = "#2b2b2b"
@@ -131,6 +132,29 @@ def main_app(root, username):
             content_text.insert("1.0", note["content"])
             content_text.pack(fill="both", padx=10, pady=5, expand=True)
 
+            # --- Nút tóm tắt, gợi ý, cải thiện ---
+            def summarize():
+                content = content_text.get("1.0", "end").strip()
+                messagebox.showinfo("Tóm tắt", content[:100] + "...")
+
+            def suggest_title():
+                content = content_text.get("1.0", "end").strip()
+                title_entry.delete(0, tk.END)
+                title_entry.insert(0, "Gợi ý: " + (content[:20] + "..." if len(content) > 20 else content))
+
+            def improve():
+                content = content_text.get("1.0", "end").strip()
+                messagebox.showinfo("Cải thiện", content.upper())
+
+            action_frame = tk.Frame(content_frame, bg=MAIN_BG)
+            action_frame.pack(pady=(5, 10))
+            tk.Button(action_frame, text="Tóm tắt", command=summarize,
+                      bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
+            tk.Button(action_frame, text="Gợi ý tiêu đề", command=suggest_title,
+                      bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
+            tk.Button(action_frame, text="Cải thiện văn bản", command=improve,
+                      bg="#2196f3", fg="white", font=("Arial", 11), width=18).pack(side="left", padx=5)
+
             def save_update():
                 new_title = title_entry.get()
                 new_content = content_text.get("1.0", "end").strip()
@@ -146,71 +170,7 @@ def main_app(root, username):
         load_table()
 
     def show_trash():
-        clear_frame(content_frame)
-        from tkinter import ttk
-
-        tk.Label(content_frame, text="🗑️ Thùng rác - Ghi chú đã xóa", bg=MAIN_BG,
-                 fg="white", font=("Arial", 16, "bold")).pack(pady=(10, 0))
-
-        tree = ttk.Treeview(content_frame, columns=("title", "deleted_time"), show="headings", height=15)
-        tree.heading("title", text="Tiêu đề")
-        tree.heading("deleted_time", text="Thời điểm xóa")
-        tree.column("title", width=400)
-        tree.column("deleted_time", width=200)
-        tree.pack(fill="both", expand=True, padx=20, pady=10)
-
-        selected_index = tk.IntVar(value=-1)
-
-        def on_row_select(event):
-            selected = tree.selection()
-            if selected:
-                selected_index.set(int(selected[0]))
-            else:
-                selected_index.set(-1)
-
-        tree.bind("<<TreeviewSelect>>", on_row_select)
-
-        def load_table():
-            tree.delete(*tree.get_children())
-            trash.load_trash()
-            trash_list = trash.get_trash_notes(username)
-            for idx, note in enumerate(trash_list):
-                tree.insert("", "end", iid=idx, values=(
-                    note.get("title", "Không tiêu đề"),
-                    note.get("deleted_time", "Không rõ")
-                ))
-
-        def restore_note():
-            idx = selected_index.get()
-            if idx == -1:
-                messagebox.showwarning("Chưa chọn", "Vui lòng chọn ghi chú.")
-                return
-            if trash.restore_from_trash(username, idx):
-                messagebox.showinfo("Đã khôi phục", "Ghi chú đã được khôi phục.")
-                load_table()
-            else:
-                messagebox.showerror("Lỗi", "Không thể khôi phục ghi chú.")
-
-        def delete_forever():
-            idx = selected_index.get()
-            if idx == -1:
-                messagebox.showwarning("Chưa chọn", "Vui lòng chọn ghi chú.")
-                return
-            if messagebox.askyesno("Xác nhận", "Bạn có chắc muốn xóa vĩnh viễn ghi chú này?"):
-                if trash.permanently_delete_from_trash(username, idx):
-                    messagebox.showinfo("Đã xóa", "Ghi chú đã bị xóa vĩnh viễn.")
-                    load_table()
-                else:
-                    messagebox.showerror("Lỗi", "Không thể xóa ghi chú.")
-
-        action_frame = tk.Frame(content_frame, bg=MAIN_BG)
-        action_frame.pack(pady=10)
-        tk.Button(action_frame, text="Khôi phục", command=restore_note,
-                  bg=BUTTON_BG, fg="white", font=("Arial", 11), width=15).pack(side="left", padx=10)
-        tk.Button(action_frame, text="Xóa vĩnh viễn", command=delete_forever,
-                  bg="red", fg="white", font=("Arial", 11), width=15).pack(side="left", padx=10)
-
-        load_table()
+        show_trash_ui(content_frame, username)
 
     def show_create_note():
         show_create_note_ui(content_frame, username)
