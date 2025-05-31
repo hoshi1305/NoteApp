@@ -27,9 +27,24 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
+def get_user_info(username):
+    """Lấy thông tin người dùng."""
+    users = load_users()
+    for user in users:
+        if user["username"] == username:
+            return user
+    return None
+
+
+def is_admin(username):
+    """Kiểm tra xem user có quyền admin không."""
+    user = get_user_info(username)
+    return user and user.get("role") == "admin"
+
+
 # Hàm xử lý logic
 def load_users():
-    """Đọc dữ liệu người dùng từ file JSON, kèm xử lý lỗi."""
+    """Đọc dữ liệu người dùng từ file JSON"""
     if not os.path.exists(USER_FILE):
         return []
     try:
@@ -44,7 +59,7 @@ def load_users():
 
 
 def save_users(users):
-    """Lưu dữ liệu người dùng vào file JSON, kèm xử lý lỗi."""
+    """Lưu dữ liệu người dùng vào file JSON"""
     try:
         with open(USER_FILE, "w", encoding="utf-8") as f:
             json.dump(users, f, indent=4, ensure_ascii=False)
@@ -68,7 +83,7 @@ def check_login(username, password):
 
 
 def register_user(username, password, confirm_password):
-    """Đăng ký người dùng mới nếu tên tài khoản chưa tồn tại."""
+    """Đăng ký người dùng mới (mặc định role user)."""
     # Kiểm tra tính hợp lệ tên tài khoản
     if not validate_username(username):
         return False, "Tên tài khoản không hợp lệ"
@@ -93,17 +108,12 @@ def register_user(username, password, confirm_password):
         if user["username"] == username:
             return False, "Tên tài khoản đã tồn tại"
 
-    hashed_password = hash_password(password)
-    new_user = {"username": username, "password": hashed_password}
+    hashed_password = hash_password(password) 
+    new_user = {
+        "username": username,
+        "password": hashed_password,
+        "role": "user",
+    }
     users.append(new_user)
     save_users(users)
     return True, "Đăng ký thành công"
-
-
-def get_user_info(username):
-    """Lấy thông tin người dùng."""
-    users = load_users()
-    for user in users:
-        if user["username"] == username:
-            return user
-    return None

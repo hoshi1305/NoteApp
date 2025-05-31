@@ -1,4 +1,8 @@
 import os
+import sys
+
+# Cấu hình đường dẫn
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Hằng số cấu hình
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -6,7 +10,6 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 USER_FILE = os.path.join(DATA_DIR, 'users.json')
 NOTES_FILE = os.path.join(DATA_DIR, 'notes.json')
 TRASH_FILE = os.path.join(DATA_DIR, 'trash.json')
-SHARED_NOTES_FILE = os.path.join(DATA_DIR, 'shared_notes.json')
 
 # Hàm tiện ích
 def center_window(window, width, height):

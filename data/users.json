@@ -1,6 +1,12 @@
 [
     {
-        "username": "hoshi",
-        "password": "4a3f2d1efe866da7fecdb73a35c781081922a424ced76d90f23ca36a4aec8532"
+        "username": "admin",
+        "password": "4429f702260179f0611a1a0ae9d2b65869418962d5f8b0b14b9f13249dc91cb6",
+        "role": "admin"
+    },
+    {
+        "username": "user1",
+        "password": "150bafcbaa7f75ad6b6aec6812e0bd6d352fff3b0adab2437bed25f7c5117757",
+        "role": "user"
     }
 ]
