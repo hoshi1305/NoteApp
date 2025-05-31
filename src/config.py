@@ -1,15 +1,31 @@
 import os
 import sys
+from dotenv import load_dotenv
 
 # Cấu hình đường dẫn
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 
 # Hằng số cấu hình
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 USER_FILE = os.path.join(DATA_DIR, 'users.json')
 NOTES_FILE = os.path.join(DATA_DIR, 'notes.json')
 TRASH_FILE = os.path.join(DATA_DIR, 'trash.json')
+
+# Cấu hình API AI
+try:
+    dotenv_path = os.path.join(BASE_DIR, '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path=dotenv_path)
+        GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    else:
+        GEMINI_API_KEY = None
+        print("Không tìm thấy file .env. Các chức năng AI sẽ không hoạt động.")
+except Exception as e:
+    GEMINI_API_KEY = None
+    print(f"Lỗi cấu hình API: {e}")
+
+MODEL_NAME = "gemini-2.0-flash"
 
 # Hàm tiện ích
 def center_window(window, width, height):
