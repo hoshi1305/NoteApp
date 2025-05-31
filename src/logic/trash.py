@@ -9,17 +9,30 @@ trash_data = {}
 def load_trash():
     """Đọc dữ liệu thùng rác từ file JSON."""
     global trash_data
-    if os.path.exists(TRASH_FILE):
+    if not os.path.exists(TRASH_FILE):
+        trash_data = {}
+        return
+
+    try:
         with open(TRASH_FILE, "r", encoding="utf-8") as f:
             trash_data = json.load(f)
-    else:
+    except json.JSONDecodeError as e:
+        print(f"Lỗi JSONDecodeError khi đọc {TRASH_FILE}: {e}")
+        trash_data = {}  # Hoặc chuyển file lỗi sang backup
+    except Exception as e:
+        print(f"Lỗi bất ngờ khi đọc {TRASH_FILE}: {e}")
         trash_data = {}
 
 
 def save_trash():
     """Lưu dữ liệu thùng rác vào file JSON."""
-    with open(TRASH_FILE, "w", encoding="utf-8") as f:
-        json.dump(trash_data, f, ensure_ascii=False, indent=4)
+    try:
+        with open(TRASH_FILE, "w", encoding="utf-8") as f:
+            json.dump(trash_data, f, ensure_ascii=False, indent=4)
+    except (IOError, OSError) as e:
+        print(f"Lỗi ghi file {TRASH_FILE}: {e}")
+    except TypeError as e:
+        print(f"Lỗi serialize dữ liệu: {e}")
 
 
 def move_to_trash(username, index):

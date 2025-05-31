@@ -29,17 +29,29 @@ def hash_password(password):
 
 # Hàm xử lý logic
 def load_users():
-    """Đọc dữ liệu người dùng từ file JSON."""
+    """Đọc dữ liệu người dùng từ file JSON, kèm xử lý lỗi."""
     if not os.path.exists(USER_FILE):
         return []
-    with open(USER_FILE, "r") as f:
-        return json.load(f)
+    try:
+        with open(USER_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"Lỗi JSONDecodeError khi đọc {USER_FILE}: {e}")
+        return []
+    except Exception as e:
+        print(f"Lỗi bất ngờ khi đọc {USER_FILE}: {e}")
+        return []
 
 
 def save_users(users):
-    """Lưu dữ liệu người dùng vào file JSON."""
-    with open(USER_FILE, "w") as f:
-        json.dump(users, f, indent=4, ensure_ascii=False)
+    """Lưu dữ liệu người dùng vào file JSON, kèm xử lý lỗi."""
+    try:
+        with open(USER_FILE, "w", encoding="utf-8") as f:
+            json.dump(users, f, indent=4, ensure_ascii=False)
+    except (IOError, OSError) as e:
+        print(f"Lỗi ghi file {USER_FILE}: {e}")
+    except TypeError as e:
+        print(f"Lỗi serialize dữ liệu: {e}")
 
 
 def check_login(username, password):
@@ -63,8 +75,11 @@ def register_user(username, password, confirm_password):
 
     # Kiểm tra tính hợp lệ mật khẩu
     if not validate_password(password):
-        return False, "Mật khẩu yêu cầu ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
-    
+        return (
+            False,
+            "Mật khẩu yêu cầu ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+        )
+
     # Kiểm tra tính hợp lệ mật khẩu xác nhận
     if not validate_password(confirm_password):
         return False, "Mật khẩu xác nhận không trung khớp với mật khẩu"
@@ -83,6 +98,7 @@ def register_user(username, password, confirm_password):
     users.append(new_user)
     save_users(users)
     return True, "Đăng ký thành công"
+
 
 def get_user_info(username):
     """Lấy thông tin người dùng."""
