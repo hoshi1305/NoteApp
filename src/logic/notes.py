@@ -43,17 +43,22 @@ def save_notes():
 def add_note(username, title, content):
     """Thêm ghi chú mới vào danh sách của user."""
     title = title.strip() or "Không tiêu đề"
-    if not content.strip():
+    content = content.strip()
+    if not content:
         return False
 
     now_str = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+    note = {
+        "title": title,
+        "content": content,
+        "created_time": now_str,
+        "updated_time": now_str
+    }
 
     if username not in notes_data:
         notes_data[username] = []
 
-    notes_data[username].insert(
-        0, {"title": title, "content": content, "time": now_str}
-    )
+    notes_data[username].insert(0, note)
     save_notes()
     return True
 
@@ -66,13 +71,20 @@ def update_note(username, index, title, content):
         return False
 
     title = title.strip() or "Không tiêu đề"
-    if not content.strip():
+    content = content.strip()
+    if not content:
         return False
 
     now_str = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
-    notes_data[username][index] = {"title": title, "content": content, "time": now_str}
+    note = notes_data[username][index]
+
+    note["title"] = title
+    note["content"] = content
+    note["updated_time"] = now_str
+
     save_notes()
     return True
+
 
 
 def delete_note(username, index):
