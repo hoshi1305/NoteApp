@@ -5,7 +5,7 @@ from config import center_window
 from gui.login_gui import LoginApp
 from gui.notes_gui import show_create_note_ui, clear_frame
 from logic.notes import load_notes, save_notes, notes_data
-from logic.share import share_note
+from logic.share import share_note_multiple, get_shared_notes
 from tkinter import messagebox, simpledialog
 
 # Thêm đường dẫn gốc vào sys.path để import đúng
@@ -164,10 +164,10 @@ def main_app(root, username):
             for widget in shared_notes_frame.winfo_children():
                 widget.destroy()
 
-            shared_notes = get_shared_notes_for_user(username)
+            shared_notes_multiple = get_shared_notes(username)
 
             filtered_notes = [
-                note for note in shared_notes
+                note for note in shared_notes_multiple
                 if keyword.lower() in note.get("title", "").lower()
                    or keyword.lower() in note.get("content", "").lower()
             ]
