@@ -10,54 +10,83 @@ notes_data = {}
 # Hàm tiện ích
 def validate_note_title(title):
     """Kiểm tra tiêu đề ghi chú có hợp lệ không."""
+    # Kiểm tra xem title có phải là chuỗi text không
     if not isinstance(title, str):
         return False
+
     title = title.strip()
     if len(title) > 100:
         return False
+
     return True
 
 
 def get_user_notes(username):
     """Trả về danh sách ghi chú của user."""
-    return notes_data.get(username, [])
+    if username in notes_data:
+        return notes_data[username]
+    else:
+        return []
 
 
 # Hàm xử lý logic
 def load_notes():
     """Đọc dữ liệu ghi chú từ file JSON."""
     global notes_data
-    if os.path.exists(NOTES_FILE):
+
+    # Kiểm tra xem file có tồn tại không
+    if not os.path.exists(NOTES_FILE):
+        notes_data = {}
+        return
+
+    try:
         with open(NOTES_FILE, "r", encoding="utf-8") as f:
             notes_data = json.load(f)
-    else:
+    except json.JSONDecodeError as e:
+        print(f"Lỗi JSONDecodeError khi đọc {NOTES_FILE}: {e}")
+        notes_data = {}
+    except Exception as e:
+        print(f"Lỗi bất ngờ khi đọc {NOTES_FILE}: {e}")
         notes_data = {}
 
 
 def save_notes():
     """Lưu dữ liệu ghi chú vào file JSON."""
-    with open(NOTES_FILE, "w", encoding="utf-8") as f:
-        json.dump(notes_data, f, ensure_ascii=False, indent=4)
+    try:
+        with open(NOTES_FILE, "w", encoding="utf-8") as f:
+            json.dump(notes_data, f, ensure_ascii=False, indent=4)
+    except (IOError, OSError) as e:
+        print(f"Lỗi ghi file {NOTES_FILE}: {e}")
+    except TypeError as e:
+        print(f"Lỗi serialize dữ liệu: {e}")
 
 
 def add_note(username, title, content):
     """Thêm ghi chú mới vào danh sách của user."""
-    title = title.strip() or "Không tiêu đề"
+    # Xử lý tiêu đề
+    title = title.strip()
+    if not title:
+        title = "Không tiêu đề"
+
+    # Xử lý nội dung
     content = content.strip()
     if not content:
         return False
 
+    # Tạo ghi chú mới với thời gian hiện tại
     now_str = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
     note = {
         "title": title,
         "content": content,
         "created_time": now_str,
-        "updated_time": now_str
+        "updated_time": now_str,
     }
 
+    # Tạo danh sách ghi chú cho user nếu chưa có
     if username not in notes_data:
         notes_data[username] = []
 
+    # Thêm ghi chú vào đầu danh sách (mới nhất lên trên)
     notes_data[username].insert(0, note)
     save_notes()
     return True
@@ -65,16 +94,28 @@ def add_note(username, title, content):
 
 def update_note(username, index, title, content):
     """Cập nhật ghi chú tại vị trí index của user."""
-    if username not in notes_data or not notes_data[username]:
-        return False
-    if index < 0 or index >= len(notes_data[username]):
+    # Kiểm tra xem user có ghi chú không
+    if username not in notes_data:
         return False
 
-    title = title.strip() or "Không tiêu đề"
+    if not notes_data[username]:  # Danh sách ghi chú rỗng
+        return False
+
+    # Kiểm tra index có hợp lệ không
+    if index >= len(notes_data[username]):
+        return False
+
+    # Xử lý tiêu đề
+    title = title.strip()
+    if not title:
+        title = "Không tiêu đề"
+
+    # Xử lý nội dung
     content = content.strip()
     if not content:
         return False
 
+    # Cập nhật ghi chú với thời gian mới
     now_str = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
     note = notes_data[username][index]
 
@@ -86,14 +127,20 @@ def update_note(username, index, title, content):
     return True
 
 
-
 def delete_note(username, index):
     """Xóa ghi chú tại vị trí index của user."""
-    if username not in notes_data or not notes_data[username]:
-        return False
-    if index < 0 or index >= len(notes_data[username]):
+    # Kiểm tra xem user có ghi chú không
+    if username not in notes_data:
         return False
 
+    if not notes_data[username]:  # Danh sách ghi chú rỗng
+        return False
+
+    # Kiểm tra index có hợp lệ không
+    if index >= len(notes_data[username]):
+        return False
+
+    # Xóa ghi chú khỏi danh sách
     notes_data[username].pop(index)
     save_notes()
     return True
@@ -101,14 +148,20 @@ def delete_note(username, index):
 
 def search_notes(username, keyword):
     """Tìm kiếm ghi chú theo từ khóa."""
+    # Kiểm tra xem user có ghi chú không
     if username not in notes_data:
         return []
 
     results = []
+    keyword_lower = keyword.lower()
+
+    # Duyệt qua từng ghi chú để tìm kiếm
     for note in notes_data[username]:
-        if (
-            keyword.lower() in note["title"].lower()
-            or keyword.lower() in note["content"].lower()
-        ):
+        title_lower = note["title"].lower()
+        content_lower = note["content"].lower()
+
+        # Kiểm tra keyword có trong title hoặc content không
+        if keyword_lower in title_lower or keyword_lower in content_lower:
             results.append(note)
+
     return results
