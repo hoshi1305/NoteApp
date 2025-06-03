@@ -14,7 +14,10 @@ def validate_note_title(title):
     if not isinstance(title, str):
         return False
 
+    # Loại bỏ khoảng trắng đầu cuối
     title = title.strip()
+
+    # Kiểm tra độ dài tiêu đề (tối đa 100 ký tự)
     if len(title) > 100:
         return False
 
@@ -23,9 +26,11 @@ def validate_note_title(title):
 
 def get_user_notes(username):
     """Trả về danh sách ghi chú của user."""
+    # Nếu user có ghi chú trong hệ thống
     if username in notes_data:
         return notes_data[username]
     else:
+        # User chưa có ghi chú nào, trả về danh sách rỗng
         return []
 
 
@@ -63,14 +68,14 @@ def save_notes():
 
 def add_note(username, title, content):
     """Thêm ghi chú mới vào danh sách của user."""
-    # Xử lý tiêu đề
+    # Xử lý tiêu đề: loại bỏ khoảng trắng thừa
     title = title.strip()
-    if not title:
+    if not title:  # Nếu tiêu đề rỗng
         title = "Không tiêu đề"
 
-    # Xử lý nội dung
+    # Xử lý nội dung: loại bỏ khoảng trắng thừa
     content = content.strip()
-    if not content:
+    if not content:  # Nếu nội dung rỗng
         return False
 
     # Tạo ghi chú mới với thời gian hiện tại
@@ -98,21 +103,22 @@ def update_note(username, index, title, content):
     if username not in notes_data:
         return False
 
-    if not notes_data[username]:  # Danh sách ghi chú rỗng
+    # Kiểm tra danh sách ghi chú có rỗng không
+    if not notes_data[username]:
         return False
 
     # Kiểm tra index có hợp lệ không
     if index >= len(notes_data[username]):
         return False
 
-    # Xử lý tiêu đề
+    # Xử lý tiêu đề: loại bỏ khoảng trắng thừa
     title = title.strip()
-    if not title:
+    if not title:  # Nếu tiêu đề rỗng
         title = "Không tiêu đề"
 
-    # Xử lý nội dung
+    # Xử lý nội dung: loại bỏ khoảng trắng thừa
     content = content.strip()
-    if not content:
+    if not content:  # Nếu nội dung rỗng
         return False
 
     # Cập nhật ghi chú với thời gian mới
@@ -133,7 +139,8 @@ def delete_note(username, index):
     if username not in notes_data:
         return False
 
-    if not notes_data[username]:  # Danh sách ghi chú rỗng
+    # Kiểm tra danh sách ghi chú có rỗng không
+    if not notes_data[username]:
         return False
 
     # Kiểm tra index có hợp lệ không
@@ -153,6 +160,7 @@ def search_notes(username, keyword):
         return []
 
     results = []
+    # Chuyển keyword về chữ thường để so sánh không phân biệt hoa thường
     keyword_lower = keyword.lower()
 
     # Duyệt qua từng ghi chú để tìm kiếm
