@@ -10,7 +10,6 @@ PASSWORD_REGEX = (
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,}$"
 )
 
-
 # Hàm tiện ích
 def validate_username(username):
     """Kiểm tra tên tài khoản có hợp lệ không."""
@@ -44,9 +43,11 @@ def is_admin(username):
 
 # Hàm xử lý logic
 def load_users():
-    """Đọc dữ liệu người dùng từ file JSON"""
+    """Đọc dữ liệu người dùng từ file JSON."""
+    # Kiểm tra xem file có tồn tại không
     if not os.path.exists(USER_FILE):
         return []
+    
     try:
         with open(USER_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -59,7 +60,7 @@ def load_users():
 
 
 def save_users(users):
-    """Lưu dữ liệu người dùng vào file JSON"""
+    """Lưu dữ liệu người dùng vào file JSON."""
     try:
         with open(USER_FILE, "w", encoding="utf-8") as f:
             json.dump(users, f, indent=4, ensure_ascii=False)
@@ -71,15 +72,19 @@ def save_users(users):
 
 def check_login(username, password):
     """Kiểm tra xem username và password có hợp lệ không."""
-    users = load_users()  # Tải danh sách người dùng từ file
-    for user in users:  # Duyệt qua từng người dùng
-        if user["username"] == username:  # Tìm thấy username
-            hashed_input_password = hash_password(password)  # Băm password nhập vào
-            if user["password"] == hashed_input_password:  # So sánh password đã băm
-                return True, "Đăng nhập thành công"  # Đăng nhập thành công
+    users = load_users()
+    
+    # Duyệt qua từng người dùng để tìm username
+    for user in users:
+        if user["username"] == username:
+            # Băm password nhập vào và so sánh với password đã lưu
+            hashed_input_password = hash_password(password)
+            if user["password"] == hashed_input_password:
+                return True, "Đăng nhập thành công"
             else:
-                return False, "Sai mật khẩu"  # Sai mật khẩu
-    return False, "Tên tài khoản không tồn tại"  # Không tìm thấy username
+                return False, "Sai mật khẩu"
+    
+    return False, "Tên tài khoản không tồn tại"
 
 
 def register_user(username, password, confirm_password):
@@ -100,16 +105,20 @@ def register_user(username, password, confirm_password):
         return False, "Mật khẩu xác nhận không khớp"
 
     users = load_users()
+    
+    # Kiểm tra tên tài khoản đã tồn tại chưa
     for user in users:
         if user["username"] == username:
             return False, "Tên tài khoản đã tồn tại"
 
+    # Tạo user mới
     hashed_password = hash_password(password)
     new_user = {
         "username": username,
         "password": hashed_password,
         "role": "user",
     }
+    
     users.append(new_user)
     save_users(users)
     return True, "Đăng ký thành công"
