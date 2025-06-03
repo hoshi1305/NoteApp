@@ -5,7 +5,9 @@ from config import GEMINI_API_KEY, MODEL_NAME
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-def get_gemini_response(prompt_text, task_name="AI"):
+
+# Hàm xử lý logic AI
+def get_gemini_response(prompt_text):
     """Gửi prompt đến Gemini và nhận phản hồi."""
     if not GEMINI_API_KEY:
         return "Không có API Key. Vui lòng cấu hình trong file .env"
@@ -13,13 +15,14 @@ def get_gemini_response(prompt_text, task_name="AI"):
     try:
         model = genai.GenerativeModel(MODEL_NAME)
         response = model.generate_content(prompt_text)
-        
+
         if not response.candidates:
             return "AI không thể xử lý yêu cầu này."
-        
+
         return response.text
     except Exception as e:
         return f"Lỗi khi gọi API: {e}"
+
 
 def summarize_text_ai(text_content, num_sentences=3):
     """Tóm tắt văn bản (chỉ admin)."""
@@ -31,7 +34,8 @@ def summarize_text_ai(text_content, num_sentences=3):
         f"Chỉ trả về phần nội dung tóm tắt, không thêm bất kỳ lời dẫn, giải thích hay câu mở đầu/kết thúc nào khác.\n\n"
         f"---\n{text_content}\n---"
     )
-    return get_gemini_response(prompt, "Tóm tắt")
+    return get_gemini_response(prompt)
+
 
 def suggest_title_ai(text_content, num_suggestions=3):
     """Gợi ý tiêu đề."""
@@ -43,7 +47,7 @@ def suggest_title_ai(text_content, num_suggestions=3):
         f"Mỗi tiêu đề trên một dòng riêng biệt. Chỉ trả về các tiêu đề, không thêm bất kỳ lời giải thích hay câu dẫn nào khác.\n\n"
         f"---\n{text_content}\n---"
     )
-    suggestions_text = get_gemini_response(prompt, "Gợi ý tiêu đề")
+    suggestions_text = get_gemini_response(prompt)
 
     if (
         suggestions_text
@@ -56,6 +60,7 @@ def suggest_title_ai(text_content, num_suggestions=3):
             if line.strip()
         ]
     return []
+
 
 def format_text_ai(text_content):
     """Định dạng văn bản."""
@@ -76,7 +81,8 @@ def format_text_ai(text_content):
         "Chỉ trả về nội dung đã được định dạng, không thêm bất kỳ lời giới thiệu, giải thích hay bình luận nào.\n\n"
         f"---\n{text_content}\n---"
     )
-    return get_gemini_response(prompt, "Định dạng văn bản")
+    return get_gemini_response(prompt)
+
 
 # Phân quyền AI theo role
 def get_available_ai_features(username):
@@ -85,16 +91,17 @@ def get_available_ai_features(username):
 
     if is_admin(username):
         return {
-            "summarize": True,      # Chỉ admin
+            "summarize": True,  # Chỉ admin
             "suggest_title": True,
             "format_text": True,
         }
     else:
         return {
-            "summarize": False,     # User thường không được
+            "summarize": False,  # User thường không được
             "suggest_title": True,
             "format_text": True,
         }
+
 
 def check_ai_permission(username, feature):
     """Kiểm tra quyền sử dụng tính năng AI."""
