@@ -26,6 +26,7 @@ def get_gemini_response(prompt_text):
 
 def summarize_text_ai(text_content, num_sentences=3):
     """Tóm tắt văn bản (chỉ admin)."""
+    # Kiểm tra nội dung có rỗng không
     if not text_content.strip():
         return "Nội dung trống, không có gì để tóm tắt."
 
@@ -39,6 +40,7 @@ def summarize_text_ai(text_content, num_sentences=3):
 
 def suggest_title_ai(text_content, num_suggestions=3):
     """Gợi ý tiêu đề."""
+    # Kiểm tra nội dung có rỗng không
     if not text_content.strip():
         return []
 
@@ -49,11 +51,13 @@ def suggest_title_ai(text_content, num_suggestions=3):
     )
     suggestions_text = get_gemini_response(prompt)
 
+    # Kiểm tra phản hồi từ AI có hợp lệ không
     if (
         suggestions_text
         and "Lỗi" not in suggestions_text
         and "API Key" not in suggestions_text
     ):
+        # Tách các dòng và loại bỏ dòng trống
         return [
             line.strip()
             for line in suggestions_text.strip().split("\n")
@@ -64,6 +68,7 @@ def suggest_title_ai(text_content, num_suggestions=3):
 
 def format_text_ai(text_content):
     """Định dạng văn bản."""
+    # Kiểm tra nội dung có rỗng không
     if not text_content.strip():
         return "Văn bản rỗng."
 
@@ -91,13 +96,13 @@ def get_available_ai_features(username):
 
     if is_admin(username):
         return {
-            "summarize": True,  # Chỉ admin
+            "summarize": True,  # Chỉ admin được tóm tắt
             "suggest_title": True,
             "format_text": True,
         }
     else:
         return {
-            "summarize": False,  # User thường không được
+            "summarize": False,  # User thường không được tóm tắt
             "suggest_title": True,
             "format_text": True,
         }
