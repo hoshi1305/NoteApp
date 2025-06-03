@@ -1,7 +1,7 @@
 import json
 import os
-from config import TRASH_FILE
 from datetime import datetime
+from config import TRASH_FILE
 
 # Hằng số cấu hình
 trash_data = {}
@@ -40,14 +40,15 @@ def save_trash():
 
 
 def move_to_trash(username, index):
-    """Di chuyển ghi chú tại vị trí index của user vào thùng rác."""
+    """Chuyển ghi chú tại vị trí index vào thùng rác."""
     from .notes import notes_data, save_notes
 
     # Kiểm tra xem user có ghi chú không
     if username not in notes_data:
         return False
 
-    if not notes_data[username]:  # Danh sách ghi chú rỗng
+    # Kiểm tra danh sách ghi chú có rỗng không
+    if not notes_data[username]:
         return False
 
     # Kiểm tra index có hợp lệ không
@@ -64,8 +65,8 @@ def move_to_trash(username, index):
     if username not in trash_data:
         trash_data[username] = []
 
-    # Thêm ghi chú vào thùng rác
-    trash_data[username].append(note)
+    # Thêm ghi chú vào thùng rác (mới nhất lên trên)
+    trash_data[username].insert(0, note)
 
     save_notes()
     save_trash()
@@ -80,7 +81,8 @@ def restore_from_trash(username, index):
     if username not in trash_data:
         return False
 
-    if not trash_data[username]:  # Thùng rác rỗng
+    # Kiểm tra thùng rác có rỗng không
+    if not trash_data[username]:
         return False
 
     # Kiểm tra index có hợp lệ không
@@ -108,28 +110,29 @@ def restore_from_trash(username, index):
 
 def get_trash_notes(username):
     """Trả về danh sách ghi chú trong thùng rác của user."""
-    # Nếu user không có trong thùng rác, trả về danh sách rỗng
+    # Nếu user có ghi chú trong thùng rác
     if username in trash_data:
         return trash_data[username]
     else:
+        # User chưa có ghi chú nào trong thùng rác, trả về danh sách rỗng
         return []
 
 
 def permanently_delete_from_trash(username, index):
-    """Xóa vĩnh viễn ghi chú tại vị trí index trong thùng rác."""
-
+    """Xóa vĩnh viễn ghi chú tại vị trí index khỏi thùng rác."""
     # Kiểm tra xem user có ghi chú trong thùng rác không
     if username not in trash_data:
         return False
 
-    if not trash_data[username]:  # Thùng rác rỗng
+    # Kiểm tra thùng rác có rỗng không
+    if not trash_data[username]:
         return False
 
     # Kiểm tra index có hợp lệ không
     if index >= len(trash_data[username]):
         return False
 
-    # Xóa ghi chú khỏi thùng rác (xóa vĩnh viễn)
+    # Xóa ghi chú vĩnh viễn khỏi thùng rác
     trash_data[username].pop(index)
 
     save_trash()
@@ -137,13 +140,12 @@ def permanently_delete_from_trash(username, index):
 
 
 def permanently_delete_all_from_trash(username):
-    """Xóa tất cả ghi chú trong thùng rác của user."""
-
-    # Kiểm tra xem user có trong thùng rác không
+    """Xóa vĩnh viễn tất cả ghi chú trong thùng rác của user."""
+    # Kiểm tra xem user có ghi chú trong thùng rác không
     if username not in trash_data:
         return False
 
-    # Xóa tất cả ghi chú trong thùng rác của user
+    # Xóa tất cả ghi chú của user khỏi thùng rác
     trash_data[username] = []
 
     save_trash()
