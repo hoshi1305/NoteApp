@@ -95,10 +95,6 @@ def register_user(username, password, confirm_password):
             "Mật khẩu yêu cầu ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
         )
 
-    # Kiểm tra tính hợp lệ mật khẩu xác nhận
-    if not validate_password(confirm_password):
-        return False, "Mật khẩu xác nhận không trung khớp với mật khẩu"
-
     # Kiểm tra khớp mật khẩu và xác nhận
     if password != confirm_password:
         return False, "Mật khẩu xác nhận không khớp"
@@ -108,7 +104,7 @@ def register_user(username, password, confirm_password):
         if user["username"] == username:
             return False, "Tên tài khoản đã tồn tại"
 
-    hashed_password = hash_password(password) 
+    hashed_password = hash_password(password)
     new_user = {
         "username": username,
         "password": hashed_password,
