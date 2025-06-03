@@ -9,6 +9,7 @@ if GEMINI_API_KEY:
 # Hàm xử lý logic AI
 def get_gemini_response(prompt_text):
     """Gửi prompt đến Gemini và nhận phản hồi."""
+    # Kiểm tra xem có API key không
     if not GEMINI_API_KEY:
         return "Không có API Key. Vui lòng cấu hình trong file .env"
 
@@ -16,6 +17,7 @@ def get_gemini_response(prompt_text):
         model = genai.GenerativeModel(MODEL_NAME)
         response = model.generate_content(prompt_text)
 
+        # Kiểm tra response có hợp lệ không
         if not response.candidates:
             return "AI không thể xử lý yêu cầu này."
 
@@ -30,6 +32,7 @@ def summarize_text_ai(text_content, num_sentences=3):
     if not text_content.strip():
         return "Nội dung trống, không có gì để tóm tắt."
 
+    # Tạo prompt tóm tắt
     prompt = (
         f"Hãy tóm tắt đoạn văn bản sau đây một cách ngắn gọn và súc tích trong khoảng {num_sentences} câu. "
         f"Chỉ trả về phần nội dung tóm tắt, không thêm bất kỳ lời dẫn, giải thích hay câu mở đầu/kết thúc nào khác.\n\n"
@@ -44,6 +47,7 @@ def suggest_title_ai(text_content, num_suggestions=3):
     if not text_content.strip():
         return []
 
+    # Tạo prompt gợi ý tiêu đề
     prompt = (
         f"Dựa vào nội dung văn bản dưới đây, hãy gợi ý {num_suggestions} tiêu đề thật hấp dẫn, ngắn gọn và phù hợp. "
         f"Mỗi tiêu đề trên một dòng riêng biệt. Chỉ trả về các tiêu đề, không thêm bất kỳ lời giải thích hay câu dẫn nào khác.\n\n"
@@ -72,6 +76,7 @@ def format_text_ai(text_content):
     if not text_content.strip():
         return "Văn bản rỗng."
 
+    # Tạo prompt định dạng văn bản
     prompt = (
         "Hãy định dạng lại đoạn văn bản sau đây để dễ đọc, có cấu trúc rõ ràng và mạch lạc. "
         "Nếu nội dung có các ý liệt kê hoặc các bước tuần tự, hãy sử dụng danh sách có thứ tự (ví dụ: 1., 2., 3.). "
@@ -94,6 +99,7 @@ def get_available_ai_features(username):
     """Trả về danh sách tính năng AI theo quyền user."""
     from .auth import is_admin
 
+    # Kiểm tra xem user có quyền admin không
     if is_admin(username):
         return {
             "summarize": True,  # Chỉ admin được tóm tắt
@@ -110,5 +116,6 @@ def get_available_ai_features(username):
 
 def check_ai_permission(username, feature):
     """Kiểm tra quyền sử dụng tính năng AI."""
+    # Lấy danh sách tính năng của user
     features = get_available_ai_features(username)
     return features.get(feature, False)
