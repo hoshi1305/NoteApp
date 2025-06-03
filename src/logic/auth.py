@@ -10,6 +10,7 @@ PASSWORD_REGEX = (
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,}$"
 )
 
+
 # Hàm tiện ích
 def validate_username(username):
     """Kiểm tra tên tài khoản có hợp lệ không."""
@@ -47,7 +48,7 @@ def load_users():
     # Kiểm tra xem file có tồn tại không
     if not os.path.exists(USER_FILE):
         return []
-    
+
     try:
         with open(USER_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -73,7 +74,7 @@ def save_users(users):
 def check_login(username, password):
     """Kiểm tra xem username và password có hợp lệ không."""
     users = load_users()
-    
+
     # Duyệt qua từng người dùng để tìm username
     for user in users:
         if user["username"] == username:
@@ -83,7 +84,7 @@ def check_login(username, password):
                 return True, "Đăng nhập thành công"
             else:
                 return False, "Sai mật khẩu"
-    
+
     return False, "Tên tài khoản không tồn tại"
 
 
@@ -105,7 +106,7 @@ def register_user(username, password, confirm_password):
         return False, "Mật khẩu xác nhận không khớp"
 
     users = load_users()
-    
+
     # Kiểm tra tên tài khoản đã tồn tại chưa
     for user in users:
         if user["username"] == username:
@@ -118,7 +119,7 @@ def register_user(username, password, confirm_password):
         "password": hashed_password,
         "role": "user",
     }
-    
+
     users.append(new_user)
     save_users(users)
     return True, "Đăng ký thành công"
